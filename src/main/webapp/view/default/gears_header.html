@@ -1,0 +1,33 @@
+
+		<div id="gears-header-frame" class="pax-grid pax-header"  ng-app="gearApp" ng-controller="gearAppCtrl">
+			<div class="">Gear designer</div>
+			<div id="gears-type-select" class="pax-dropdown">
+				<img  class="pax-icon" alt="Gear type" src="/icons/gears/spur.png">
+				<div class="pax-dropdown_content pax-container">
+					<div>
+						<img  class="pax-xl-icon" alt="Spur" src="/icons/gears/spur.png">
+					</div>
+					<div>
+						<img  class="pax-xl-icon" alt="Helical" src="/icons/gears/helical.JPG">
+					</div>
+					<div>
+						<img  class="pax-xl-icon" alt="Spur internel" src="/icons/gears/spur_int.jpg">
+					</div>
+					<div>
+						<img  class="pax-xl-icon" alt="Gear type" src="/icons/gears/helical_int.jpg">
+					</div>
+				</div>
+			</div>
+			<div ng-click="createPair()">
+				<img  id="gears-greate-new" class="pax-icon" alt="Create new" src="/icons/capicon/png/black/059.png" >
+			</div>
+			<div>
+				<input id="search-gears" type="text" />
+			</div>
+			<div  ng-click="listQuery()">
+				<img  id="gears-search-list" class="pax-icon" alt="Search" src="/icons/capicon/png/black/087.png">
+			</div>
+			<div>
+				<img  class="pax-icon" alt="Advanced search" src="/icons/capicon/png/black/295.png">
+			</div>
+		</div>

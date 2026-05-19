@@ -1,0 +1,131 @@
+/******************************************************************************
+ *
+ *
+ *****************************************************************************/
+/*
+ Defaults for elements
+ */
+ 
+table {
+	background-color: #f9f9f9;
+    min-width: 160px;
+    padding: 12px 16px;	
+}
+
+thead {
+	box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+}
+
+tbody tr:nth-child(2n+1) {
+	background: #c0c0c0;
+}
+
+/*
+	Flexbox basic
+*/
+
+.pax-grid {
+	display: flex;
+	align-items: center;	
+}
+ 
+.pax-gridcell {
+	flex: 1;
+ }
+ 
+.pax-header {
+	align-items: center;
+}
+ 
+ 
+/*
+	Sizes
+*/
+
+.pax-icon  {
+	width: 40px;
+	height: 40px;
+}
+ 
+.pax-large-icon {
+	width: 80px;
+	height: 80px;
+	
+}
+
+.pax-xl-icon {
+	width: 120px;
+	height: 120px;
+	
+}
+
+.pax-small-icon {
+	width: 25px;
+	height: 25px;	
+}
+ 
+ 
+.pax-xs-icon {
+	width: 15px;
+	height: 15px;	
+}
+ 
+/*
+  	Containers
+*/
+ 
+.pax-container {
+	background-color: #f9f9f9;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    padding: 12px 16px;	
+}
+
+
+/*
+	Menus
+*/
+
+.pax-dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.pax-dropdown_content {
+    display: none;
+    position: absolute;
+    z-index: 1;
+}
+
+.pax-dropdown:hover .pax-dropdown_content {
+    display: block;
+}
+
+.pax-dropdown-item:hover {
+	background-color: blue;
+}
+
+
+.pax-hidden {
+	display: none;
+}
+ 
+/*
+	Color schemes
+*/
+.pax-white {
+	
+}
+
+.pax-light_gray {
+	
+}
+
+/*
+	Fonts
+*/
+
+.pax-header {
+	font: 25px arial, sans-serif;
+}
+

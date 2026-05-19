@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="content-type" content="application/xhtml+xml; charset=UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>$$TITTLE$$</title>
+		<link  rel="stylesheet" type="text/css" href="/styles/pax.css">
+		
+		<script src="/js/lib/jquery-3.3.1.min.js"></script>
+		<script src="/js/lib/angular.min.js"></script>
+		<script src="/js/lib/angular-route.min.js"></script>
+		
+		<script src="/js/GMath.js"></script>
+		<script src="/js/evolv2.js"></script>
+		
+		
+		<script src="https://www.gstatic.com/firebasejs/4.12.0/firebase.js"></script>
+		<script>
+  			// Initialize Firebase
+  			var config = {
+   				apiKey: "AIzaSyCrG7QBTO138fjPEfTZSSzoHkgo7wmm9Hg",
+    			authDomain: "gears-210218.firebaseapp.com",
+    			databaseURL: "https://gears-210218.firebaseio.com",
+    			projectId: "gears-210218",
+    			storageBucket: "gears-210218.appspot.com",
+   				messagingSenderId: "80119940762"
+  			};
+  			firebase.initializeApp(config);
+		</script>
+		
+		<script type="text/javascript">
+
+			var app = angular.module('gearApp', []);
+			
+			app.controller('gearAppCtrl', function($scope, $http) {
+			
+				/**
+					Listaa kaikki (oikean tyypin) hammasparit
+					Vaihda listanäyttö näkyville.
+				*/
+				$scope.listAll = function() {
+					$http.get("/rest/data/gears/pair/eng/list")
+						.then(function (response) {
+							$scope.gearList = response.data;
+							
+							$("#gearpair-form").addClass("pax-hidden");
+							$("#gearpair-list").removeClass("pax-hidden");
+							// TODO virhekäsittely
+						});
+				}
+				
+				/**
+					Listaa vapaasanaehdon mukaiset hammasparit
+					Vaihda listanäyttö näkyville
+				*/
+				$scope.listQuery = function(query) {					
+					$http.get("/rest/data/gears/pair/eng/list")
+						.then(function (response) {
+							$scope.gearList = response.data;
+						
+							$("#gearpair-form").addClass("pax-hidden");
+							$("#gearpair-list").removeClass("pax-hidden");
+							// TODO virhekäsittely
+						});
+					
+				}
+			
+				/**
+					Hae id-mukainen hammaspari
+					Vaihda hammasparinäyttö
+				*/
+				$scope.loadPair = function(id) {
+					console.log("/rest/data/gears/pair/eng/" + id);
+					$http.get("/rest/data/gears/pair/eng/" + id).then(function (response) {
+						$scope.gearPair = response.data;		
+						
+						console.log(JSON.stringify($scope.gearPair));	// TODO remove
+
+				//		Evolvent.calculate($scope.gearPair.firstGear.geometry, $scope.gearPair.secondGear.geometry);
+				//		Evolvent.calculate($scope.gearPair.secondGear.geometry, $scope.gearPair.firstGear.geometry);
+		
+						$("#gearpair-list").addClass("pax-hidden");
+						$("#gearpair-form").removeClass("pax-hidden");
+						// TODO virhekäsittely
+						
+						
+					});	
+					
+				}
+				
+				$scope.createPair = function() {
+					$http.get("/rest/data/gears/pair/eng/new").then(function (response) {
+						$scope.gearPair = response.data;		
+						
+						console.log(JSON.stringify($scope.gearPair));	// TODO remove
+
+				//		Evolvent.calculate($scope.gearPair.firstGear.geometry, $scope.gearPair.secondGear.geometry);
+				//		Evolvent.calculate($scope.gearPair.secondGear.geometry, $scope.gearPair.firstGear.geometry);
+		
+						$("#gearpair-list").addClass("pax-hidden");
+						$("#gearpair-form").removeClass("pax-hidden");
+						// TODO virhekäsittely
+						
+						
+					});	
+					
+				}
+				
+				$scope.saveGearPair = function(gp) {		
+					alert(JSON.stringify(gp));
+					$http.post("/rest/data/gears/pair/save", JSON.stringify(gp))
+					.then(function (response) {
+						alert('update - Ok');
+					});
+				}
+
+				$scope.selectModulo = function(m) {
+					$scope.gearPair.firstGear.geometry.m = m;
+					$scope.gearPair.secondGear.geometry.m = m;
+					
+					Evolvent.calculate($scope.gearPair.firstGear.geometry, $scope.gearPair.secondGear.geometry);
+					Evolvent.calculate($scope.gearPair.secondGear.geometry, $scope.gearPair.firstGear.geometry);
+				}
+				
+				$scope.recalc = function() {
+					Evolvent.calculate($scope.gearPair.firstGear.geometry, $scope.gearPair.secondGear.geometry);
+					Evolvent.calculate($scope.gearPair.secondGear.geometry, $scope.gearPair.firstGear.geometry);					
+				}
+				
+				/**
+					Moduulilista
+				*/
+				$scope.modulos = Evolvent.modulos;
+				
+				// Luodaan runko, jotta angular osaa kytkeä muuttujat.
+				// Routering ratkaisee "oikein"
+//				$scope.createPair();
+				/**
+					Lataa aluksi kaikki tyypin mukaiset hammasparit
+				*/
+				$scope.createPair();
+				$scope.listAll();
+		});
+
+		</script>
+		
+	</head>
+	<body ng-app="gearApp" ng-controller="gearAppCtrl">
+		<div id="framework_main_frame">
+			<div id="framework_header_frame" class="pax-grid pax-container pax-header" >
+				<div id="application_header" class="pax-gridcell pax-grid"  ng-include="'/rest/view/gears/eng/header'">
+				</div>
+				<div id="framework_header" class="pax-gridcell pax-grid">
+					<div id="framework_user">
+						<span>Quest</span>
+					</div>
+					<div id="framework_language_select" class="pax-dropdown" >
+						<img alt="Finnish" src="/icons/flags/flags/48/Finland.png" class=pax-icon>
+						<div id="language_select" class="pax-dropdown_content pax-container">
+							<div class="pax-dropdown-item">
+								<img alt="Finnish" src="/icons/flags/flags/48/Finland.png" class=pax-icon>
+							</div>
+							<div class="pax-dropdown-item">
+								<img alt="European English" src="/icons/flags/flags/48/European Union.png" class="pax-icon">
+							</div>
+							<div class="pax-dropdown-item">
+								<img alt="Brasilian Portugues" src="/icons/flags/flags/48/Brazil.png" class="pax-icon">
+							</div>
+						</div>
+					</div>
+					<div id="framework_openid_login" class="pax-header">
+						<img alt="Login" src="/icons/openid-icon-100x100.png" class="pax-icon"></div>					
+				</div>
+			</div>
+			<div id="application_content">
+				<div id="gearpair-form"  class="pax-container pax-hidden"   ng-include="'/rest/view/gears/eng/my-code/form'">
+				</div>
+				<div  id="gearpair-list" class="pax-container pax-hidden"  ng-include="'/rest/view/gears/eng/list'">
+				</div>
+			</div>		
+		</div>
+	</body>
+</html>

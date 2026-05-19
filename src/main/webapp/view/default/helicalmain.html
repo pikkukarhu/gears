@@ -1,0 +1,157 @@
+		<div>
+			<div>
+				<table>
+					<thead>
+						<tr>
+							<th>Nimi</th><th colspan="2">Arvo</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<th  colspan="3"> Hammaspari </th>
+						</tr>
+						<tr>
+							<th>koodi</th>
+							<td  colspan="2">{{gearPair.identity.code}}</td>
+							
+						</tr>
+						<tr>
+							<th >versio</th>
+							<td  colspan="2">{{gearPair.identity.version}}</td>
+						</tr>
+						<tr>
+							<th>Kuvaus 1</th>
+							<td  colspan="2"><input type="text" name="DESC1" ng-model="gearPair.identity.desc1Key" lang="en-150" /></td>
+						</tr>
+						<tr>
+							<th></th><th>Ensi&ouml;</th><th>Toisio</th>
+						</tr>
+						
+						<tr>
+							<th>koodi</th>
+							<td>{{gearPair.firstGear.identity.code}}</td>
+							<td>{{gearPair.secondGear.identity.code}}</td>
+							
+						</tr>
+						<tr>
+							<th>versio</th>
+							<td>{{gearPair.firstGear.identity.version}}</td>
+							<td>{{gearPair.secondGear.identity.version}}</td>
+							
+						</tr>
+						<tr>
+							<th>Kuvaus 1</th>
+							<td><input type="text" name="DESC1" ng-model="gearPair.firstGear.identity.desc1Key" lang="en-150" /></td>
+							<td><input type="text" name="DESC1" ng-model="gearPair.secondGear.identity.desc1Key" lang="en-150" /></td>						
+						</tr>
+						<tr>
+							<th>rynt&ouml;kulma</th><td colspan="2">{{gearPair.secondGear.geometry.alpha}}</td>
+						</tr>
+						<tr>
+							<th>moduuli</th>
+							<td colspan="2"><div id="modulo" >{{gearPair.firstGear.geometry.m}}
+								<div class="pax-dropdown">
+									<button id="select-module" type="button">...</button>
+									<div id="moduulilista" class="pax-dropdown_content pax-container"> 
+										<table>
+											<thead>
+												<tr>
+													<th>1</th><th>2</th>
+												</tr>
+											</thead>
+											<tbody>
+												<tr ng-repeat="a in modulos">
+													<td ng-click="selectModulo(a['1'])" class="pax-dropdown-item">{{a["1"]}}</td>
+												<td ng-click="selectModulo(a['2'])" class="pax-dropdown-item">{{a["2"]}}</td></tr>
+											</tbody>
+										</table>
+									</div>
+								</div>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<th>hammasluku</th>
+							<td><input type="number" name="Z1" ng-model="gearPair.firstGear.geometry.Z" ng-blur="recalc()" lang="en-150" /></td>
+							<td><input type="number" name="Z2" ng-model="gearPair.secondGear.geometry.Z" ng-blur="recalc()" lang="en-150" /></td>
+						</tr>
+						<tr>
+							<th>Profiilinsiirto</th>
+							<td><input type="number" name="x1" ng-model="gearPair.firstGear.geometry.x" lang="en-150" ng-blur="recalc()" /></td>
+							<td><input type="number" name="x2" ng-model="gearPair.secondGear.geometry.x" lang="en-150" ng-blur="recalc()" /></td>
+						</tr>
+						<tr>
+							<th>Jakohalkaisija</th>
+							<td>{{gearPair.firstGear.geometry.D}}</td>
+							<td>{{gearPair.secondGear.geometry.D}}</td>
+						</tr>
+						<tr>
+							<th>Perushalkaisija</th>
+							<td>{{gearPair.firstGear.geometry.Db}}</td>
+							<td>{{gearPair.secondGear.geometry.Db}}</td>
+						</tr>
+						<tr>
+							<th>Jako</th>
+							<td>{{gearPair.firstGear.geometry.p}}</td>
+							<td>{{gearPair.secondGear.geometry.p}}</td>
+						</tr>
+						<tr>
+							<th>Hampaan korkeus</th>
+							<td>{{gearPair.firstGear.geometry.h}}</td>
+							<td>{{gearPair.secondGear.geometry.h}}</td>
+						</tr>
+						<tr>
+							<th>P&auml;&auml;korkeus</th>
+							<td>{{gearPair.firstGear.geometry.ha}}</td>
+							<td>{{gearPair.secondGear.geometry.ha}}</td>
+						</tr>
+						<tr>
+							<th>Tyvikorkeus</th>
+							<td>{{gearPair.firstGear.geometry.hf}}</td>
+							<td>{{gearPair.secondGear.geometry.hf}}</td>
+						</tr>
+						<tr>
+							<th>P&auml;&auml;halkaisija</th>
+							<td>{{gearPair.firstGear.geometry.Da}}</td>
+							<td>{{gearPair.secondGear.geometry.Da}}</td>
+						</tr>
+						<tr>
+							<th>Tyvihalkaisija</th>
+							<td>{{gearPair.firstGear.geometry.Df}}</td>
+							<td>{{gearPair.secondGear.geometry.Df}}</td>
+						</tr>
+						<tr>
+							<th>P&auml;&auml;korkeuden lyhennys</th>
+							<td>{{gearPair.firstGear.geometry.delta_ha}}</td>
+							<td>{{gearPair.secondGear.geometry.delta_ha}}</td>
+						</tr>
+						<tr>
+							<th>Perusakseliv&auml;li</th>
+							<td colspan="2">{{gearPair.firstGear.geometry.a}}</td>
+						</tr>
+						<tr>
+							<th>Akseliv&auml;</th>
+							<td colspan="2">{{gearPair.firstGear.geometry.aw}}</td>
+						</tr>
+						<tr>
+							<th>Rynt&ouml;kulma vierint&auml;pinnalla</th>
+							<td colspan="2">{{gearPair.firstGear.geometry.alphaW}}</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+			<!-- Valikot ja helpit -->
+			<div id="gears_toolbar-frame" class="pax-grid pax-header pax-container">
+					<div>
+						<button  ng-click="loadPair(gearPair.id)">
+							<img  class="pax-icon" alt="reload" src="/icons/ultraviolet/icons8-available-updates-40.png">
+						</button>
+					</div>
+					<div>
+						<button ng-click="saveGearPair(gearPair)">
+							<img  class="pax-icon" alt="save" src="/icons/ultraviolet/icons8-save-40.png">
+						</button>
+					</div>
+				</div>
+			
+		</div>

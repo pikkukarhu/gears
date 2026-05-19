@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<!--
+Copyright 2017 hobbes.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+<html>
+	<head>
+		<title>
+			Gears -- todo
+		</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+		<script src="/js/lib/jquery-3.3.1.min.js"></script>
+		<script src="/js/lib/angular.min.js"></script>
+		<script src="/js/lib/angular-route.min.js"></script> 
+	
+		<link rel="stylesheet" href="/styles/pax.css">
+		
+		<script>
+			var app = angular.module('statuses', []);
+			
+			app.controller('statusCtrl', function($scope, $http) {
+
+				$scope.statusRow = function (obj) {
+					var r = "";
+					var op = obj.op;
+					if (op == "new") {
+						r = "/icons/ultraviolet/icons8-add-file-40.png"
+					}
+					else if (op == "deleted") {
+						r = "/icons/ultraviolet/icons8-delete-file-40.png";
+					}
+					else if (op == "changed") {
+						r = "/icons/ultraviolet/icons8-edit-file-40.png";
+					}
+					else {
+						
+					}
+					return r;
+				};
+				
+				$scope.createRow = function() {
+					$scope.statuslist.push({"op" : "new", "code" : "", "description" : "" , "locked" : false});
+				};
+				
+				$scope.deleteRow = function(row) {
+					if (row.op == 'new') {
+						// Remove item 'row' from model
+						var filtered = $scope.statuslist.filter(function(e) { return e !== row })
+						$scope.statuslist = filtered;
+					}
+					else {
+						row.op = 'deleted';
+					}
+					
+				}
+				
+				$scope.setStatus= function(row) {
+					console.log(JSON.stringify(row));
+					if (row.op == 'clear') {
+						row.op = 'changed';
+					}
+				}
+				
+				$scope.reload = function() {
+					$http.get("/rest/data/admin/status/eng/list")
+						.then(function (response) {
+							$scope.statuslist = response.data;
+							$scope.statuslist.forEach(
+								function(item, index) {
+									item.op = 'clear';
+								});
+						});
+				}
+				
+				$scope.save = function() {
+					console.log(JSON.stringify($scope.statuslist));
+					
+					var deleted = [];
+					var updated = [];
+					var added   = [];
+					
+					var a = $scope.statuslist;
+					for (i = 0; i < a.length; i++) {
+					    var x = a[i];
+					    if (x.op == 'new') {
+					    	added.push(x);
+					    }
+					    else if (x.op == 'deleted') {
+					    	deleted.push(x);
+					    }
+					    else if (x.op == 'changed') {
+					    	updated.push(x);
+					    }
+					}
+					
+					if (deleted.length > 0) {
+						console.log(JSON.stringify(deleted));
+						$http.post("/rest/data/admin/status/list/delete", JSON.stringify(deleted))
+						.then(function (response) {
+							alert('delete - Ok');
+						});
+					}
+					if (added.length > 0) {
+						$http.put("/rest/data/admin/status/list", JSON.stringify(added))
+						.then(function (response) {
+							alert('add - Ok');
+						});			
+					}
+					if (updated.length > 0) {
+						$http.post("/rest/data/admin/status/list", JSON.stringify(updated))
+						.then(function (response) {
+							alert('update - Ok');
+						});
+						
+					}
+
+				};
+				
+				$scope.reload();
+			});
+			
+		</script>
+		
+	</head>
+	<body>
+		<div ng-app="statuses" ng-controller="statusCtrl">
+				<table>
+					<thead>
+						<tr>
+							<th></th>
+							<th>code</th>
+							<th>description</th>
+							<th>locked</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr ng-repeat="x in statuslist">
+							<td>
+								<img ng-src="{{statusRow(x)}}"   class="pax-xs-icon"/>
+							</td>
+							<td>
+								<input type="text" name="status_code" ng-model="x.code" ng-blur="setStatus(x)" lang="en-150" />
+							</td>
+    						<td>
+    							<input type="text" name="status_desc" ng-model="x.description" ng-blur="setStatus(x)" lang="en-150" />
+    						</td>
+    						<td>
+    							<input type="checkbox" name="status_locked" ng-model="x.locked" ng-blur="setStatus(x)" lang="en-150" />
+    						</td>
+    						<td  ng-click = "deleteRow(x)">
+    							<img alt="create" src="/icons/ultraviolet/icons8-delete-file-40.png"  class="pax-xs-icon" ></img>
+    						</td>
+						</tr>
+						<tr>
+							<td ng-click = "createRow()" >
+								<img alt="create" src="/icons/ultraviolet/icons8-add-list-40.png"  class="pax-xs-icon" ></img>
+							</td>
+							<td/>
+    						<td/>
+    						<td/>
+    						<td/>
+						</tr>
+	
+					</tbody>
+				</table>
+				
+				<div id="gears-header-frame" class="pax-grid pax-header pax-container">
+					<div>
+						<button  ng-click="reload()">
+							<img  class="pax-icon" alt="reload" src="/icons/ultraviolet/icons8-available-updates-40.png">
+						</button>
+					</div>
+					<div>
+						<button ng-click="save()">
+							<img  class="pax-icon" alt="save" src="/icons/ultraviolet/icons8-save-40.png">
+						</button>
+					</div>
+				</div>
+		</div>
+	</body>
+</html>

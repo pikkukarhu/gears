@@ -1,0 +1,41 @@
+
+		<div id="gears-list-frame" class="pax-grid" >
+			<table>
+				<thead>
+					<tr>
+						<th>
+							type
+						</th>
+						<th>
+							code
+						</th>
+						<th>
+							name
+						</th>
+						<th>
+							profile
+						</th>
+						<th>
+							m
+						</th>
+						<th>
+							Z1
+						</th>
+						<th>
+							Z2
+						</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr ng-repeat="x in gearList" ng-click="loadPair(x.id)">
+						<td>{{x.type}}</td>
+						<td>{{x.identity.code}}</td>
+						<td>{{x.identity.desc1key}}</td>
+						<td>{{x.firstGear.profile.name}}</td>
+						<td>{{x.firstGear.geometry.m}}</td>
+						<td>{{x.firstGear.geometry.Z}}</td>
+						<td>{{x.secondGear.geometry.Z}}</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
