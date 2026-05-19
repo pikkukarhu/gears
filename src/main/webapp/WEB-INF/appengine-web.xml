@@ -6,5 +6,7 @@
   <threadsafe>true</threadsafe>
   <sessions-enabled>false</sessions-enabled>
   <runtime>java21</runtime>
+  <app-engine-apis>true</app-engine-apis>
+
 
 </appengine-web-app>
