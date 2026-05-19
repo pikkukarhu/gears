@@ -1,72 +1,117 @@
-/**
- * 
- */
 package fi.pa.gears.services;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.math.BigInteger;
-import java.security.SecureRandom;
-import java.util.Scanner;
+import fi.pa.gears.services.auth.OidcProviderConfig;
+import fi.pa.gears.services.auth.OidcService;
+import com.nimbusds.oauth2.sdk.AuthorizationCode;
+import com.nimbusds.oauth2.sdk.id.State;
+import com.nimbusds.openid.connect.sdk.Nonce;
+import com.nimbusds.openid.connect.sdk.claims.IDTokenClaimsSet;
+import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
+import com.nimbusds.openid.connect.sdk.token.OIDCTokens;
 
+import java.net.URI;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
-
-/**
- * @author mma
- *
- */
+import javax.ws.rs.core.Response;
 
 @Path("/oauth")
 public class LoginService {
-/*	
- * 
- * API_KEY=AIzaSyAxNRpVige-O_IzfiDWEsKASC2idTdF6_8
- * 
-    <!--Client Id = 169671802224-hdrm7bsiaappf11o61n00mi4k98vfj5c.apps.googleusercontent.com-->
-    <!--Redirect uri = https://martti89.ddns.net-->
-    <link href="https://accounts.google.com/o/oauth2/v2/auth?client_id={client_id}&response_type=token&scope=openid&redirect_uri={redirect_uri}">Login with google</link>
 
-*/
-	public static final String CLIENT_ID = "80119940762-t8haqe16i92kml0cqv30e81vuq07a4cq.apps.googleusercontent.com";
-	public static final String APPLICATION_NAME = "gears-210218";
-	
-	@GET
-	@Produces(MediaType.TEXT_HTML)
-	@Path("login")
-	public String login( @Context HttpServletRequest request) throws FileNotFoundException {
-		
-		/*
-		 * Client ID	= 80119940762-t8haqe16i92kml0cqv30e81vuq07a4cq.apps.googleusercontent.com
-Client secret	
-_B2qVKFO__T07oNB7ZQ5wJsS
-Creation date	
-Feb 21, 2018, 6:44:32 PM
+    public static final String APPLICATION_NAME = "gears-210218";
+    
+    private static final OidcService oidcService = new OidcService();
+    static {
+        // Example: Adding Google as a provider with its Client Secret for Code Flow.
+        oidcService.addProvider(new OidcProviderConfig(
+            "google", 
+            "https://accounts.google.com", 
+            "80119940762-t8haqe16i92kml0cqv30e81vuq07a4cq.apps.googleusercontent.com", 
+            "_B2qVKFO__T07oNB7ZQ5wJsS" 
+        ));
+    }
 
-		 */
-		  // Create a state token to prevent request forgery.
-		  // Store it in the session for later validation.
-		  String state = new BigInteger(130, new SecureRandom()).toString(32);
-		  request.getSession().setAttribute("state", state);
-		  
-		  // Read index.html into memory, and set the client ID,
-		  // token state, and application name in the HTML before serving it.
-		  return new Scanner(new File("index.html"), "UTF-8")
-		      .useDelimiter("\\A").next()
-		      .replaceAll("[{]{2}\\s*CLIENT_ID\\s*[}]{2}", CLIENT_ID)
-		      .replaceAll("[{]{2}\\s*STATE\\s*[}]{2}", state)
-		      .replaceAll("[{]{2}\\s*APPLICATION_NAME\\s*[}]{2}",
-		                  APPLICATION_NAME);
-	}
-	
-	@GET
-	@Produces(MediaType.TEXT_HTML)
-	@Path("connect")
-	public String connect( @Context HttpServletRequest request) {
-		return "";
-	}
+    @GET
+    @Produces(MediaType.TEXT_HTML)
+    @Path("login/{provider}")
+    public Response login(@PathParam("provider") String providerName, @Context HttpServletRequest request) throws Exception {
+        
+        OIDCProviderMetadata metadata = oidcService.getMetadata(providerName);
+        OidcProviderConfig config = oidcService.getProviderConfig(providerName);
+        
+        if (config == null) {
+            return Response.status(Response.Status.BAD_REQUEST).entity("Unknown provider: " + providerName).build();
+        }
+
+        URI authEndpoint = metadata.getAuthorizationEndpointURI();
+        
+        State state = new State();
+        Nonce nonce = new Nonce();
+        
+        request.getSession().setAttribute("oidc_state", state.getValue());
+        request.getSession().setAttribute("oidc_nonce", nonce.getValue());
+        request.getSession().setAttribute("oidc_provider", providerName);
+
+        // Build the OIDC Authorization URL using response_type=code (Secure Authorization Code Flow)
+        String redirectUri = request.getRequestURL().toString().replace("/login/" + providerName, "/connect");
+        
+        String finalUrl = authEndpoint.toString() + 
+            "?client_id=" + config.getClientID().getValue() +
+            "&response_type=code" +
+            "&scope=openid email profile" +
+            "&redirect_uri=" + redirectUri +
+            "&state=" + state.getValue() +
+            "&nonce=" + nonce.getValue();
+
+        return Response.seeOther(new URI(finalUrl)).build();
+    }
+    
+    @GET
+    @Path("connect")
+    public String connect(
+            @QueryParam("code") String codeValue,
+            @QueryParam("state") String stateValue,
+            @Context HttpServletRequest request) {
+        
+        try {
+            String sessionState = (String) request.getSession().getAttribute("oidc_state");
+            String sessionNonce = (String) request.getSession().getAttribute("oidc_nonce");
+            String providerName = (String) request.getSession().getAttribute("oidc_provider");
+
+            if (sessionState == null || !sessionState.equals(stateValue)) {
+                return "Invalid state (potential CSRF attack)";
+            }
+
+            if (codeValue == null) {
+                return "Authorization code missing";
+            }
+
+            // 1. Exchange the code for tokens
+            String redirectUri = request.getRequestURL().toString();
+            OIDCTokens tokens = oidcService.tokenExchange(
+                providerName, 
+                new AuthorizationCode(codeValue), 
+                new URI(redirectUri)
+            );
+
+            // 2. Securely validate the ID Token
+            IDTokenClaimsSet claims = oidcService.validateIdToken(
+                providerName, 
+                tokens.getIDToken(), 
+                new Nonce(sessionNonce)
+            );
+
+            // 3. Successfully authenticated!
+            // Here you would typically create a session for the user in your application
+            return "Successfully logged in as: " + claims.getStringClaim("email") + " (" + claims.getSubject() + ")";
+            
+        } catch (Exception e) {
+            return "Authentication failed: " + e.getMessage();
+        }
+    }
 }
